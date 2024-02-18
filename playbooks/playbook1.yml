@@ -25,9 +25,9 @@
         state: present
         filename: google-chrome
 
-    - name: Add NodeSource Node.js 14.x repo
+    - name: Add NodeSource Node.js 20.x repo
       ansible.builtin.shell: 
-        cmd: "curl -fsSL https://deb.nodesource.com/setup_14.x | bash -"
+        cmd: "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
       args:
         warn: false
 
