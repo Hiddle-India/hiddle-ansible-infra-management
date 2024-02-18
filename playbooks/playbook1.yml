@@ -1,6 +1,6 @@
 ---
 - name: Install various applications
-  hosts: all
+  hosts: local
   become: yes
   tasks:
     - name: Import Microsoft GPG key for VSCode
