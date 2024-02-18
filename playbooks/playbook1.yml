@@ -1,0 +1,42 @@
+---
+- name: Install various applications
+  hosts: all
+  become: yes
+  tasks:
+    - name: Import Microsoft GPG key for VSCode
+      ansible.builtin.apt_key:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+
+    - name: Add VSCode repository
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/repos/code stable main
+        state: present
+        filename: vscode
+
+    - name: Import Google Chrome GPG key
+      ansible.builtin.apt_key:
+        url: https://dl.google.com/linux/linux_signing_key.pub
+        state: present
+
+    - name: Add Google Chrome repository
+      ansible.builtin.apt_repository:
+        repo: 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main'
+        state: present
+        filename: google-chrome
+
+    - name: Add NodeSource Node.js 14.x repo
+      ansible.builtin.shell: 
+        cmd: "curl -fsSL https://deb.nodesource.com/setup_14.x | bash -"
+      args:
+        warn: false
+
+    - name: Install applications
+      ansible.builtin.apt:
+        name:
+          - code # VSCode
+          - google-chrome-stable # Google Chrome
+          - nodejs # Node.js
+          - slack-desktop # Slack
+        state: present
+        update_cache: yes
