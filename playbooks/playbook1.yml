@@ -48,12 +48,21 @@
         state: present
         filename: nodesource
 
-    - name: Install applications
+    - name: Install Visual Studio Code, Google Chrome, and Node.js
       ansible.builtin.apt:
         name:
           - code # VSCode
           - google-chrome-stable # Google Chrome
           - nodejs # Node.js
-          - slack-desktop # Slack
         update_cache: yes
+        state: present
+
+    - name: Download Slack .deb package
+      ansible.builtin.get_url:
+        url: https://downloads.slack-edge.com/releases/linux/4.36.140/prod/x64/slack-desktop-4.36.140-amd64.deb
+        dest: "/tmp/slack-desktop.deb"
+
+    - name: Install Slack
+      ansible.builtin.dpkg:
+        deb: "/tmp/slack-desktop.deb"
         state: present
