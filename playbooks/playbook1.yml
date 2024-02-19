@@ -49,6 +49,14 @@
         state: present
         update_cache: yes
 
+    - name: Ensure old NodeSource repository entries are removed
+      ansible.builtin.lineinfile:
+        path: "/etc/apt/sources.list.d/nodesource.list"
+        state: absent
+        regexp: "^deb https://deb.nodesource.com/node_"
+        backrefs: yes
+      become: yes
+
     - name: Add NodeSource GPG key
       ansible.builtin.apt_key:
         url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
@@ -56,7 +64,7 @@
 
     - name: Add NodeSource repository
       ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_lsb.codename }} main"
+        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_lsb.codename }} main"
         state: present
         filename: nodesource
         update_cache: yes
