@@ -2,7 +2,7 @@
 - name: Install various applications on Ubuntu
   hosts: local
   become: yes
-  gather_facts: yes # Ensures that ansible_distribution_release is available
+  gather_facts: yes # Ensures ansible_distribution_release is available
 
   vars:
     NODEJS_VERSION: "20"
@@ -39,23 +39,26 @@
         filename: google-chrome
         update_cache: yes
 
-    # Add Node.js repository and GPG key in the recommended way
-    - name: Install Node.js dependencies
+    # Install Visual Studio Code, Google Chrome
+    - name: Install Visual Studio Code and Google Chrome
       ansible.builtin.apt:
-        pkg:
-          - ca-certificates
-          - curl
-          - gnupg
+        name: "{{ item }}"
         state: present
         update_cache: yes
+      loop:
+        - code
+        - google-chrome-stable
 
-    - name: Ensure old NodeSource repository entries are removed
-      ansible.builtin.lineinfile:
-        path: "/etc/apt/sources.list.d/nodesource.list"
-        state: absent
-        regexp: "^deb https://deb.nodesource.com/node_"
-        backrefs: yes
-      become: yes
+    # Node.js Installation
+    - name: Install Node.js dependencies
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - ca-certificates
+        - curl
+        - gnupg
+        update_cache: yes
 
     - name: Add NodeSource GPG key
       ansible.builtin.apt_key:
@@ -69,20 +72,14 @@
         filename: nodesource
         update_cache: yes
 
-    # Install Visual Studio Code, Google Chrome, and Node.js
-    - name: Install applications
+    - name: Install Node.js
       ansible.builtin.apt:
-        name: "{{ item }}"
+        name: nodejs
         state: present
-      loop:
-        - code # VSCode
-        - google-chrome-stable # Google Chrome
-        - nodejs # Node.js
 
-    # Check if Slack is installed and conditionally install
+    # Slack Installation
     - name: Check if Slack is installed
-      ansible.builtin.shell:
-        cmd: "dpkg-query -W -f='${Status}' slack-desktop || true"
+      ansible.builtin.command: dpkg -l slack-desktop
       register: slack_installed
       changed_when: false
       failed_when: false
@@ -92,12 +89,18 @@
       ansible.builtin.get_url:
         url: https://downloads.slack-edge.com/releases/linux/4.36.2/prod/x64/slack-desktop-4.36.2-amd64.deb
         dest: "/tmp/slack-desktop.deb"
-      when: slack_installed.stdout is defined and slack_installed.stdout == "0"
+      when: slack_installed.rc != 0
 
     - name: Install Slack from downloaded .deb package
       ansible.builtin.apt:
         deb: /tmp/slack-desktop.deb
-      when: slack_installed.stdout is defined and slack_installed.stdout == "0"
+      when: slack_installed.rc != 0
+
+    # Postman Installation
+    - name: Check if Postman is installed
+      ansible.builtin.stat:
+        path: /opt/Postman
+      register: postman_installed
 
     - name: Install Postman
       ansible.builtin.shell: |
@@ -105,3 +108,4 @@
       args:
         executable: /bin/bash
       become: true
+      when: not postman_installed.stat.exists
