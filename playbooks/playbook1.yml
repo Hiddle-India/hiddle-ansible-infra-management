@@ -107,6 +107,5 @@
 
     - name: Install Postman
       ansible.builtin.shell:
-        cmd: curl -o- https://dl-cli.pstmn.io/install/linux64.sh | sh
-      become: true
+        cmd: curl -o- https://dl-cli.pstmn.io/install/linux64.sh
       when: not postman_installed.stat.exists
