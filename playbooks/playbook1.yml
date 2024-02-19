@@ -92,12 +92,12 @@
       ansible.builtin.get_url:
         url: https://downloads.slack-edge.com/releases/linux/4.36.2/prod/x64/slack-desktop-4.36.2-amd64.deb
         dest: "/tmp/slack-desktop.deb"
-      when: slack_installed.stdout is defined and slack_installed.stdout == "0"
+      # when: slack_installed.stdout is defined and slack_installed.stdout == "0"
 
     - name: Install Slack from downloaded .deb package
       ansible.builtin.apt:
         deb: /tmp/slack-desktop.deb
-      when: slack_installed.stdout is defined and slack_installed.stdout == "0"
+      # when: slack_installed.stdout is defined and slack_installed.stdout == "0"
 
     # Postman Installation
     - name: Check if Postman is installed
