@@ -120,17 +120,9 @@
         src: /tmp/postman-linux-x64.tar.gz
         dest: /opt
         remote_src: yes
-      when: not postman_installed.stat.exists
 
     - name: Create symlink for Postman executable
       file:
         src: /opt/Postman/Postman
         dest: /usr/local/bin/postman
         state: link
-      when: not postman_installed.stat.exists
-
-    - name: Create desktop shortcut for Postman
-      template:
-        src: postman.desktop.j2
-        dest: /usr/share/applications/postman.desktop
-      when: not postman_installed.stat.exists
