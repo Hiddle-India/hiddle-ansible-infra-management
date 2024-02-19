@@ -90,7 +90,7 @@
 
     - name: Download Slack .deb package
       ansible.builtin.get_url:
-        url: https://downloads.slack-edge.com/releases/linux/4.36.2/prod/x64/slack-desktop-4.36.2-amd64.deb
+        url: https://downloads.slack-edge.com/releases/linux/4.36.140/prod/x64/slack-desktop-4.36.140-amd64.deb
         dest: "/tmp/slack-desktop.deb"
       # when: slack_installed.stdout is defined and slack_installed.stdout == "0"
 
