@@ -100,6 +100,11 @@
       when: slack_installed.stdout is defined and slack_installed.stdout == "0"
 
     # Postman Installation
+    - name: Check if Postman is installed
+      ansible.builtin.stat:
+        path: /opt/Postman
+      register: postman_installed
+
     - name: Ensure unzip is installed
       apt:
         name: unzip
