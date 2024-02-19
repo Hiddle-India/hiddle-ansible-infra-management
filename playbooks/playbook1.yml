@@ -82,18 +82,19 @@
     # Check if Slack is installed and conditionally install
     - name: Check if Slack is installed
       ansible.builtin.shell:
-        cmd: dpkg-query -W -f='${{Status}}' slack-desktop | grep -c "ok installed"
+        cmd: "dpkg-query -W -f='${Status}' slack-desktop || true"
       register: slack_installed
       changed_when: false
+      failed_when: false
       ignore_errors: true
 
     - name: Download Slack .deb package
       ansible.builtin.get_url:
         url: https://downloads.slack-edge.com/releases/linux/4.36.2/prod/x64/slack-desktop-4.36.2-amd64.deb
         dest: "/tmp/slack-desktop.deb"
-      when: slack_installed.stdout == "0"
+      when: slack_installed.stdout is defined and slack_installed.stdout == "0"
 
     - name: Install Slack from downloaded .deb package
       ansible.builtin.apt:
         deb: /tmp/slack-desktop.deb
-      when: slack_installed.stdout == "0"
+      when: slack_installed.stdout is defined and slack_installed.stdout == "0"
