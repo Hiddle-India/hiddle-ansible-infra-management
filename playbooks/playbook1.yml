@@ -126,3 +126,8 @@
         src: /opt/Postman/Postman
         dest: /usr/local/bin/postman
         state: link
+
+    - name: Create desktop shortcut for Postman
+      template:
+        src: postman.desktop.j2
+        dest: /usr/share/applications/postman.desktop
