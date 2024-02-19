@@ -114,7 +114,6 @@
       get_url:
         url: "https://dl.pstmn.io/download/latest/linux64"
         dest: /tmp/postman-linux-x64.tar.gz
-      when: not postman_installed.stat.exists
 
     - name: Extract Postman archive
       unarchive:
