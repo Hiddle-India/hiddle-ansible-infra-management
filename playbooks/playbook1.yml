@@ -2,23 +2,27 @@
 - name: Install various applications on Ubuntu
   hosts: local
   become: yes
+  vars:
+    NODEJS_VERSION: "20"
 
   tasks:
+    # Import GPG keys for repositories
     - name: Import Microsoft GPG key for VSCode
       ansible.builtin.apt_key:
         url: https://packages.microsoft.com/keys/microsoft.asc
         state: present
 
+    - name: Import Google Chrome GPG key
+      ansible.builtin.apt_key:
+        url: https://dl.google.com/linux/linux_signing_key.pub
+        state: present
+
+    # Add software repositories
     - name: Add VSCode repository
       ansible.builtin.apt_repository:
         repo: deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/repos/code stable main
         state: present
         filename: vscode
-
-    - name: Import Google Chrome GPG key
-      ansible.builtin.apt_key:
-        url: https://dl.google.com/linux/linux_signing_key.pub
-        state: present
 
     - name: Add Google Chrome repository
       ansible.builtin.apt_repository:
@@ -26,21 +30,47 @@
         state: present
         filename: google-chrome
 
-    - name: Install Visual Studio Code, Google Chrome, and Node.js
-      ansible.builtin.apt:
-        name:
-          - code # VSCode
-          - google-chrome-stable # Google Chrome
-        update_cache: yes
+    - name: Add Node.js LTS repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
         state: present
+        filename: nodesource
+      vars:
+        ansible_distribution_release: "{{ ansible_lsb.codename }}"
+
+    # Update apt cache after adding repositories
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    # Install applications
+    - name: Install Visual Studio Code and Google Chrome
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - code # VSCode
+        - google-chrome-stable # Google Chrome
+
+    - name: Install Node.js
+      ansible.builtin.apt:
+        name: nodejs
+        state: present
+
+    # Download and install Slack
+    - name: Check if Slack is installed
+      command: dpkg -l slack-desktop
+      register: slack_installed
+      ignore_errors: yes
+      changed_when: false
 
     - name: Download Slack .deb package
       ansible.builtin.get_url:
-        url: https://downloads.slack-edge.com/releases/linux/4.36.140/prod/x64/slack-desktop-4.36.140-amd64.deb
+        url: https://downloads.slack-edge.com/releases/linux/4.36.2/prod/x64/slack-desktop-4.36.2-amd64.deb
         dest: "/tmp/slack-desktop.deb"
-        mode: "0644"
+      when: slack_installed.rc != 0
 
     - name: Install Slack from downloaded .deb package
       ansible.builtin.apt:
         deb: /tmp/slack-desktop.deb
-      become: yes
+      when: slack_installed.rc != 0
