@@ -63,6 +63,6 @@
         dest: "/tmp/slack-desktop.deb"
 
     - name: Install Slack
-      ansible.builtin.dpkg:
-        deb: "/tmp/slack-desktop.deb"
-        state: present
+      ansible.builtin.shell:
+        cmd: dpkg -i /tmp/slack-desktop.deb
+      become: yes
