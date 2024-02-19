@@ -43,34 +43,29 @@
       ansible.builtin.apt:
         update_cache: yes
 
-    # Install applications
-    - name: Install Visual Studio Code and Google Chrome
+    # Install Visual Studio Code and Google Chrome
+    - name: Install applications
       ansible.builtin.apt:
         name: "{{ item }}"
         state: present
       loop:
         - code # VSCode
         - google-chrome-stable # Google Chrome
+        - nodejs # Node.js
 
-    - name: Install Node.js
-      ansible.builtin.apt:
-        name: nodejs
-        state: present
-
-    # Download and install Slack
+    # Check if Slack is installed and conditionally install
     - name: Check if Slack is installed
-      shell: dpkg-query -W -f='${Status}' slack-desktop | grep -c "ok installed"
+      command: dpkg-query -W -f='${{Status}}' slack-desktop || true
       register: slack_installed
       changed_when: false
-      ignore_errors: true
 
     - name: Download Slack .deb package
       get_url:
         url: https://downloads.slack-edge.com/releases/linux/4.36.2/prod/x64/slack-desktop-4.36.2-amd64.deb
         dest: "/tmp/slack-desktop.deb"
-      when: slack_installed.stdout == "0"
+      when: "'install ok installed' not in slack_installed.stdout"
 
     - name: Install Slack from downloaded .deb package
       ansible.builtin.apt:
         deb: /tmp/slack-desktop.deb
-      when: slack_installed.stdout == "0"
+      when: "'install ok installed' not in slack_installed.stdout"
