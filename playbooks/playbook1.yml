@@ -61,8 +61,9 @@
       ansible.builtin.get_url:
         url: https://downloads.slack-edge.com/releases/linux/4.36.140/prod/x64/slack-desktop-4.36.140-amd64.deb
         dest: "/tmp/slack-desktop.deb"
+        mode: "0644"
 
-    - name: Install Slack
-      ansible.builtin.shell:
-        cmd: dpkg -i /tmp/slack-desktop.deb
+    - name: Install Slack from downloaded .deb package
+      ansible.builtin.apt:
+        deb: /tmp/slack-desktop.deb
       become: yes
