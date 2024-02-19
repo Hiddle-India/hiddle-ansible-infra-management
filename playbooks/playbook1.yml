@@ -98,3 +98,11 @@
       ansible.builtin.apt:
         deb: /tmp/slack-desktop.deb
       when: slack_installed.stdout is defined and slack_installed.stdout == "0"
+
+    - name: Install Postman
+      ansible.builtin.shell: |
+        curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      args:
+        executable: /bin/bash
+      become: true
+      become_user: root
