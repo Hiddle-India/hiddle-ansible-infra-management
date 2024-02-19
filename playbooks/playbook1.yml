@@ -105,4 +105,3 @@
       args:
         executable: /bin/bash
       become: true
-      become_user: root
