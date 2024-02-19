@@ -100,12 +100,33 @@
       when: slack_installed.stdout is defined and slack_installed.stdout == "0"
 
     # Postman Installation
-    - name: Check if Postman is installed
-      ansible.builtin.stat:
-        path: /opt/Postman
-      register: postman_installed
+    - name: Ensure unzip is installed
+      apt:
+        name: unzip
+        state: present
 
-    - name: Install Postman
-      ansible.builtin.shell:
-        cmd: curl -o- https://dl-cli.pstmn.io/install/linux64.sh
+    - name: Download Postman
+      get_url:
+        url: "https://dl.pstmn.io/download/latest/linux64"
+        dest: /tmp/postman-linux-x64.tar.gz
+      when: not postman_installed.stat.exists
+
+    - name: Extract Postman archive
+      unarchive:
+        src: /tmp/postman-linux-x64.tar.gz
+        dest: /opt
+        remote_src: yes
+      when: not postman_installed.stat.exists
+
+    - name: Create symlink for Postman executable
+      file:
+        src: /opt/Postman/Postman
+        dest: /usr/local/bin/postman
+        state: link
+      when: not postman_installed.stat.exists
+
+    - name: Create desktop shortcut for Postman
+      template:
+        src: postman.desktop.j2
+        dest: /usr/share/applications/postman.desktop
       when: not postman_installed.stat.exists
