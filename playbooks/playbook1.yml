@@ -6,6 +6,11 @@
     NODEJS_VERSION: "20"
 
   tasks:
+    # Update apt cache before adding repositories
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
     # Import GPG keys for repositories
     - name: Import Microsoft GPG key for VSCode
       ansible.builtin.apt_key:
