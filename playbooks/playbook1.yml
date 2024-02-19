@@ -54,11 +54,11 @@
       ansible.builtin.apt:
         name: "{{ item }}"
         state: present
+        update_cache: yes
       loop:
         - ca-certificates
         - curl
         - gnupg
-        update_cache: yes
 
     - name: Add NodeSource GPG key
       ansible.builtin.apt_key:
